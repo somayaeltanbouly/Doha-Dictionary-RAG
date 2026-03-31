@@ -2,19 +2,11 @@
 # Doha Dictionary RAG — Central Configuration
 # ============================================================
 #
-# This file documents the default values used across the pipeline.
+# This file contains all default values used across the pipeline.
+# Values are loaded automatically by run.py and used as argparse defaults.
 #
-# NOTE: The CLI entry point (run.py) does NOT read this file.
-#       Defaults are defined as argparse defaults in run.py.
-#       To override any value, pass the corresponding CLI flag;
-#       see  python run.py <subcommand> --help  for all options.
-#
-#       The individual src/ scripts (e.g. finetune_cross_encoder.py,
-#       build_index.py) also do not load this file — they use their
-#       own argparse defaults, which mirror the values here.
-#
-# This file serves as a single human-readable reference for all
-# default settings across the codebase.
+# To override any value, pass the corresponding CLI flag;
+# see  python run.py <subcommand> --help  for all options.
 #
 # All paths are relative to the repository root.
 # ============================================================

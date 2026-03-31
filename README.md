@@ -292,7 +292,9 @@ python src/data_processing/build_all.py
 
 ## Configuration
 
-All pipeline defaults are centralised in `config.yaml` at the repository root. Edit this file to change parameters globally without touching any source file — for example:
+All pipeline defaults are centralised in `config.yaml` at the repository root. This file is loaded automatically by `run.py` and values are used as default arguments for all commands.
+
+To change parameters globally, edit `config.yaml`:
 
 ```yaml
 retrieval:
@@ -302,7 +304,7 @@ generation:
   default_mode: zs  # change default prompting mode
 ```
 
-See `config.yaml` for the full list of documented parameters grouped by pipeline stage.
+Command-line arguments always override config file values. See `config.yaml` for the full list of documented parameters grouped by pipeline stage.
 
 ---
 
