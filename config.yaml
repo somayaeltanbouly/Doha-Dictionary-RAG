@@ -1,0 +1,137 @@
+# ============================================================
+# Doha Dictionary RAG — Central Configuration
+# ============================================================
+#
+# Edit the values here to change pipeline defaults without
+# touching any source file.
+#
+# All paths are relative to the repository root.
+# ============================================================
+
+
+# ── Reproducibility ───────────────────────────────────────── #
+random_seed: 42
+
+
+# ── Data paths ────────────────────────────────────────────── #
+data:
+  # Raw scraped CSVs (not tracked in git — must be sourced separately)
+  raw_dir: data/retrieval_corpus/raw
+
+  # Processed corpus produced by build_retrieval_corpus.py
+  corpus_ar:      data/retrieval_corpus/processed/DHDA_filtered_AR.csv
+  corpus_en:      data/retrieval_corpus/processed/DHDA_filtered_EN.csv
+  text_to_embed:  data/retrieval_corpus/processed/DHDA_text_to_embed.csv
+  inscriptions:   data/retrieval_corpus/processed/DHDA_inscriptions_data.csv
+  etymological:   data/retrieval_corpus/processed/DHDA_etymological_data.csv
+
+  # Vector database produced by build_index.py
+  embeddings:     data/retrieval_corpus/vector_database/embeddings_nomic-embed.npy
+  faiss_index:    data/retrieval_corpus/vector_database/faiss_nomic-embed.index
+
+  # QA evaluation data produced by build_qa_pairs.py
+  qa_full_testing:     data/questions_data/QA_data/evaluation_data/islamic_full_testing.csv
+  qa_meaning_testing:  data/questions_data/QA_data/evaluation_data/islamic_meaning_testing.csv
+
+  # QD retrieval data produced by build_qd_pairs.py / build_ce_training_data.py
+  qd_full:        data/questions_data/QD_data/QD_full_data.csv
+  qd_eval:        data/questions_data/QD_data/QD_evaluation_data.csv
+  qd_contrastive: data/questions_data/QD_data/QD_contrastive_data.csv
+
+  # Classification data produced by build_classification_data.py
+  clf_data:       data/questions_data/classification_data/classification_data.csv
+
+
+# ── Model artefact paths ──────────────────────────────────── #
+models:
+  # Embedding model (SentenceTransformer — local copy recommended)
+  embedding_model: models/nomic
+
+  # Intent classifier (trained by train_classifier.py)
+  classifier: models/RF_intent_classifier.joblib
+
+  # Cross-encoder reranker (fine-tuned by finetune_cross_encoder.py)
+  cross_encoder: models/finetuned_CE_bge
+
+
+# ── Retrieval parameters ──────────────────────────────────── #
+retrieval:
+  # Final number of documents returned per query
+  top_k: 10
+
+  # Candidate pool size for single-method strategies (BM25-only or dense-only)
+  k_bm25: 50
+
+  # Candidate pool per method before Reciprocal Rank Fusion (hybrid only)
+  k_rrf: 300
+
+  # Number of candidates forwarded to the cross-encoder for reranking
+  k_rerank: 50
+
+  # RRF smoothing constant k (standard value is 60)
+  rrf_k_const: 60
+
+  # Score weights in hybrid fusion (must sum to 1.0)
+  bm25_weight:  0.55
+  dense_weight: 0.45
+
+  # Default retrieval method for RAG generation
+  default_method: hybrid
+
+
+# ── Index-building parameters ─────────────────────────────── #
+index:
+  # FAISS index type: Flat (exact), IVFFlat (approximate), HNSW (graph-based)
+  index_type: Flat
+  batch_size: 256
+
+
+# ── Intent classifier training ────────────────────────────── #
+classifier_training:
+  n_estimators: 200
+  ngram_range:  [3, 5]      # character-level n-grams
+  max_features: 30000
+  test_size:    0.20
+  threshold:    0.60        # predictions below this confidence → "other"
+
+
+# ── Cross-encoder fine-tuning ─────────────────────────────── #
+cross_encoder_training:
+  base_model:    BAAI/bge-reranker-v2-m3
+  max_length:    512
+  epochs:        3
+  batch_size:    8
+  learning_rate: 5.0e-5
+  warmup_steps:  0
+  eval_steps:    500
+  use_amp:       true       # mixed-precision (fp16) training
+  val_ratio:     0.10
+  test_ratio:    0.10
+
+  # Contrastive data generation
+  n_source:       5000      # QD rows sampled before building pairs
+  num_negatives:  1         # negative documents per positive pair
+
+
+# ── Data generation ───────────────────────────────────────── #
+data_generation:
+  qd_n_sample:    1002      # QD evaluation split size
+  clf_n_per_type: 1000      # labelled questions per intent class
+
+
+# ── RAG generation ─────────────────────────────────────────── #
+generation:
+  # Default prompting mode: fs (few-shot) | zs (zero-shot) | baseline
+  default_mode: fs
+
+  # HuggingFace backend — default model
+  hf_model_id: ALLaM-AI/ALLaM-7B-Instruct-preview
+  max_new_tokens: 512
+  load_in_4bit: false       # set true to use 4-bit BitsAndBytes quantization
+
+
+# ── LLM judge ─────────────────────────────────────────────── #
+judge:
+  model: gemini-2.5-pro
+  temperature: 0            # deterministic output (critical for reproducibility)
+  api_delay:   1.0          # seconds between API calls (rate-limit buffer)

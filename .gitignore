@@ -1,0 +1,57 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# Virtual environments
+.env
+.venv
+env/
+venv/
+ENV/
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ── Project-specific ──────────────────────────────────────────────── #
+
+# Large binary artefacts (generated — do not commit)
+*.npy
+*.index
+*.faiss
+
+# Trained model artefacts (regenerate via training scripts)
+models/RF_intent_classifier.joblib
+models/finetuned_CE_bge/
+models/nomic/
+
+# Raw dictionary source data (not redistributable)
+data/retrieval_corpus/raw/
+
+# Generation and judging outputs (results, not source)
+output/
+judging/
+retrieval_output/
+nohup.out
+
+# Secrets / keys
+.env
+*.env
+secrets.yaml
