@@ -1,6 +1,6 @@
 # Doha Dictionary RAG
 
-A modular Retrieval-Augmented Generation (RAG) pipeline for question answering over the *Doha Historical Dictionary of Arabic* (DHDA / المعجم التاريخي للغة العربية). The system supports multiple retrieval strategies, three LLM backends, and intent-aware prompting calibrated per question type.
+A modular Retrieval-Augmented Generation (RAG) pipeline for question answering over the *Doha Historical Dictionary of Arabic* (DHDA / معجم الدوحة التاريخي للغة العربية). The system supports multiple retrieval strategies, three LLM backends, and intent-aware prompting calibrated per question type.
 
 ---
 
