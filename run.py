@@ -224,8 +224,9 @@ def _sub_finetune_reranker(sub: argparse._SubParsersAction) -> None:
     p.add_argument("--lr",           type=float, default=5e-5)
     p.add_argument("--warmup-steps", type=int,   default=0,     dest="warmup_steps")
     p.add_argument("--eval-steps",   type=int,   default=500,   dest="eval_steps")
-    p.add_argument("--use-amp",      action="store_true",  default=True, dest="use_amp")
-    p.add_argument("--no-amp",       action="store_false", dest="use_amp")
+    p.add_argument("--amp",      action=argparse.BooleanOptionalAction, default=True,
+                   dest="use_amp",
+                   help="Use mixed-precision (fp16) training. Pass --no-amp to disable.")
     p.add_argument("--seed",         type=int,   default=42)
     p.add_argument("--val-ratio",    type=float, default=0.1,   dest="val_ratio")
     p.add_argument("--test-ratio",   type=float, default=0.1,   dest="test_ratio")
@@ -252,10 +253,17 @@ def _sub_build_index(sub: argparse._SubParsersAction) -> None:
     p.add_argument("--text-col",   default="text",        dest="text_col")
     p.add_argument("--model",      default="nomic-ai/nomic-embed-text-v2-moe",
                    help="SentenceTransformer model (local path or HuggingFace ID).")
+    # Note: build_index.py inserts the model tag into the output file stems, so
+    # the defaults below become embeddings_nomic-embed.npy / faiss_nomic-embed.index
+    # — matching the defaults used by eval-retrieval and generate.
     p.add_argument("--emb-out",    default="data/retrieval_corpus/vector_database/embeddings.npy",
-                   dest="emb_out")
+                   dest="emb_out",
+                   help="Base output path for embeddings (.npy). The model tag is inserted "
+                        "into the stem automatically (e.g. embeddings_nomic-embed.npy).")
     p.add_argument("--idx-out",    default="data/retrieval_corpus/vector_database/faiss.index",
-                   dest="idx_out")
+                   dest="idx_out",
+                   help="Base output path for FAISS index. The model tag is inserted "
+                        "into the stem automatically (e.g. faiss_nomic-embed.index).")
     p.add_argument("--index-type", default="Flat", choices=["Flat", "IVFFlat", "HNSW"],
                    dest="index_type")
     p.add_argument("--batch-size", type=int, default=256, dest="batch_size")

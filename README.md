@@ -111,7 +111,8 @@ Doha-Dictionary-RAG/
 │   │   ├── build_index.py
 │   │   ├── retriever.py            HybridRetriever (BM25 + FAISS + reranker)
 │   │   ├── evaluate_retrieval.py
-│   │   ├── retrieval_pipeline.py   Convenience: build-index + evaluate in one run
+│   │   ├── retrieval_pipeline.py   Standalone script: build-index + evaluate in one run
+│   │   │                           (not a run.py subcommand — run directly with python)
 │   │   └── metrics.py              Recall@K, MRR, MAP
 │   │
 │   ├── rag/                        Model backends, prompt builder, and pipeline
@@ -466,3 +467,21 @@ The judge runs with `temperature=0` for deterministic, reproducible scoring. The
 - The LLM judge uses `temperature=0` for deterministic scoring.
 - All required training scripts and their exact hyperparameters are documented in `config.yaml` and in each script's module-level docstring.
 - Raw data, trained models, and large binary artefacts are excluded from version control (see `.gitignore`). A fresh run of `build_all.py` followed by the training scripts will regenerate everything except the raw source data.
+
+---
+
+## Citation
+
+If you use this work, please cite:
+
+```bibtex
+@misc{eltanbouly2026groundingarabicllmsdoha,
+      title={Grounding Arabic LLMs in the Doha Historical Dictionary: Retrieval-Augmented Understanding of Quran and Hadith},
+      author={Somaya Eltanbouly and Samer Rashwani},
+      year={2026},
+      eprint={2603.23972},
+      archivePrefix={arXiv},
+      primaryClass={cs.CL},
+      url={https://arxiv.org/abs/2603.23972},
+}
+```

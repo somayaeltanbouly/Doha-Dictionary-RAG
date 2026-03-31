@@ -80,19 +80,16 @@ _GEMINI_MODEL = "gemini-2.5-pro"
 # ──────────────────────────────────────────────────────────────────────────── #
 
 def _build_gemini_model():
-    """Initialise the Gemini client once and return ``(model, genai)``."""
-    import google.generativeai as genai
+    """Initialise the Gemini client once and return ``(client, genai_types)``."""
+    from google import genai
+    from google.genai import types as genai_types
 
     api_key = os.environ.get("GEMINI_API_KEY")
     if not api_key:
         raise EnvironmentError("GEMINI_API_KEY environment variable is not set.")
 
-    genai.configure(api_key=api_key)
-    model = genai.GenerativeModel(
-        model_name=_GEMINI_MODEL,
-        generation_config={"response_mime_type": "application/json"},
-    )
-    return model, genai
+    client = genai.Client(api_key=api_key)
+    return client, genai_types
 
 
 def _call_gemini(model, genai_module, question: str, model_answer: str, correct_answer: str) -> tuple[str, str]:
@@ -105,9 +102,13 @@ def _call_gemini(model, genai_module, question: str, model_answer: str, correct_
         model_answer=model_answer,
         correct_answer=correct_answer,
     )
-    response = model.generate_content(
-        prompt,
-        generation_config=genai_module.types.GenerationConfig(temperature=0),
+    response = model.models.generate_content(
+        model=_GEMINI_MODEL,
+        contents=prompt,
+        config=genai_module.GenerateContentConfig(
+            temperature=0,
+            response_mime_type="application/json",
+        ),
     )
     raw = response.text
 
@@ -135,7 +136,7 @@ def evaluate_dataset(input_file: str, output_file: str, api_delay: float = 1.0) 
     print(f"Judging {total} answers from: {input_file}")
 
     # Initialise Gemini once — avoids re-configuring the client on every row.
-    gemini_model, genai_module = _build_gemini_model()
+    gemini_client, genai_types = _build_gemini_model()
 
     os.makedirs(os.path.dirname(output_file) or ".", exist_ok=True)
     file_exists = os.path.isfile(output_file)

@@ -7,7 +7,7 @@ based on the requested model type.
 Supported model types
 ---------------------
 - ``"fanar"``  : Fanar API (OpenAI-compatible interface, model ``Fanar-C-1-8.7B``)
-- ``"gemini"`` : Google Gemini via ``google-generativeai`` (model ``gemini-2.5-pro``)
+- ``"gemini"`` : Google Gemini via ``google-genai`` (model ``gemini-2.5-pro``)
 - ``"hf"``     : HuggingFace ``transformers`` with fp16 or 4-bit quantization (default ALLaM)
 
 Usage::
@@ -91,7 +91,7 @@ class FanarBackend(GenerationBackend):
 # ──────────────────────────────────────────────────────────────────────────── #
 
 class GeminiBackend(GenerationBackend):
-    """Google Gemini backend via the ``google-generativeai`` SDK.
+    """Google Gemini backend via the ``google-genai`` SDK.
 
     Reads ``GEMINI_API_KEY`` from the environment.
 
@@ -109,15 +109,15 @@ class GeminiBackend(GenerationBackend):
         max_retries: int = 3,
         retry_delay: float = 5.0,
     ) -> None:
-        import google.generativeai as genai
+        from google import genai
+        from google.genai import types as genai_types
 
         api_key = os.environ.get("GEMINI_API_KEY")
         if not api_key:
             raise EnvironmentError("GEMINI_API_KEY environment variable is not set.")
 
-        genai.configure(api_key=api_key)
-        self._genai = genai
-        self._model = genai.GenerativeModel(model_name=model)
+        self._client = genai.Client(api_key=api_key)
+        self._genai_types = genai_types
         self._model_name = model
         self._max_retries = max_retries
         self._retry_delay = retry_delay
@@ -125,9 +125,10 @@ class GeminiBackend(GenerationBackend):
     def generate(self, prompt: str) -> str:
         for attempt in range(1, self._max_retries + 1):
             try:
-                response = self._model.generate_content(
-                    prompt,
-                    generation_config=self._genai.types.GenerationConfig(temperature=0),
+                response = self._client.models.generate_content(
+                    model=self._model_name,
+                    contents=prompt,
+                    config=self._genai_types.GenerateContentConfig(temperature=0),
                 )
                 return response.text
             except Exception:
