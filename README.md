@@ -294,6 +294,8 @@ python src/data_processing/build_all.py
 
 All pipeline defaults are centralised in `config.yaml` at the repository root. This file is loaded automatically by `run.py` and values are used as default arguments for all commands.
 
+### Editing Configuration
+
 To change parameters globally, edit `config.yaml`:
 
 ```yaml
@@ -305,6 +307,27 @@ generation:
 ```
 
 Command-line arguments always override config file values. See `config.yaml` for the full list of documented parameters grouped by pipeline stage.
+
+### Using Config in Custom Scripts
+
+If you're writing custom scripts that need to access configuration values, use the config loader:
+
+```python
+from src.config_loader import get_config, get_config_value
+
+# Load configuration once
+config = get_config()
+
+# Access nested values using dot notation
+top_k = get_config_value(config, "retrieval.top_k", default=10)
+corpus_path = get_config_value(config, "data.corpus_ar")
+random_seed = get_config_value(config, "random_seed", default=42)
+
+# Provide fallback for missing values
+custom_value = get_config_value(config, "nonexistent.key", default="fallback")
+```
+
+The config is loaded once and cached, so subsequent calls to `get_config()` are fast.
 
 ---
 
