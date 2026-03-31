@@ -151,7 +151,7 @@ def evaluate_dataset(input_file: str, output_file: str, api_delay: float = 1.0) 
         for idx, row in data.iterrows():
             try:
                 score, explanation = _call_gemini(
-                    gemini_model, genai_module,
+                    gemini_client, genai_types,
                     question=row["question"],
                     model_answer=row["answer"],
                     correct_answer=row["correct_answer"],
